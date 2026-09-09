@@ -100,5 +100,4 @@ jobs:
 
       - name: Run empirical yfinance gate
         run: |
-          pytest -vv test_level_3.py \
-            -k live_yfinance_90d_mean_rank_ic_exceeds_threshold
+          pytest -vv test_level_3.py
