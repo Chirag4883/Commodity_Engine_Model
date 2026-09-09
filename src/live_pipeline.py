@@ -1981,10 +1981,20 @@ def run_pipeline(
         parents=True,
         exist_ok=True,
     )
+    persistence_started = (
+    time.perf_counter()
+    )
 
     _atomic_write_parquet(
         output,
         output_path,
+    )
+
+    step_seconds[
+        "persistence"
+    ] = (
+        time.perf_counter()
+        - persistence_started
     )
 
     total_duration = (
@@ -2082,13 +2092,6 @@ def run_pipeline(
     _atomic_write_json(
         metadata,
         metadata_path,
-    )
-
-    step_seconds[
-        "persistence"
-    ] = (
-        time.perf_counter()
-        - t0
     )
 
     return metadata
