@@ -92,8 +92,8 @@ class LivePipelineConfig:
 
     max_chars_per_candidate: int = 24_000
 
-    openai_model: str = (
-        "gpt-5.6-luna"
+    llm_model: str = (
+        "openai/gpt-oss-120b"
     )
 
     output_path: str = (
@@ -1563,11 +1563,11 @@ def run_pipeline(
         client = (
             DeterministicMockClient()
             if mode == "mock"
-            else OpenAIStructuredClient(
+            else GroqStructuredClient(
                 model=(
                     os.getenv(
-                        "OPENAI_MODEL",
-                        cfg.openai_model,
+                        "LLM_MODEL",
+                        cf.llm_model,
                     )
                 )
             )
