@@ -16,6 +16,12 @@ on:
           - mock
           - live
 
+      publish_live:
+        description: "Commit live artifact to repository"
+        required: true
+        default: false
+        type: boolean
+
   push:
     branches:
       - main
@@ -181,12 +187,17 @@ jobs:
 
           validate_alpha_frame(frame)
 
-          metadata = json.load(
-              open(
-                  "data/pipeline_metadata.json",
-                  encoding="utf-8",
+          with open(
+              "data/pipeline_metadata.json",
+              encoding="utf-8",
+          ) as handle:
+              metadata = json.load(handle)
+
+          if metadata["source_failures"]:
+              raise SystemExit(
+                  "Live ingestion source failures detected: "
+                  f"{metadata['source_failures']}"
               )
-          )
 
           print("Rows:", len(frame))
           print("Status:", metadata["pipeline_status"])
@@ -196,16 +207,53 @@ jobs:
               metadata["routed_candidate_count"],
           )
           print(
+              "Active candidates:",
+              metadata["active_candidate_count"],
+          )
+          print(
               "Source failures:",
               metadata["source_failures"],
+          )
+          print(
+              "Alpha mean:",
+              metadata["alpha_mean"],
+          )
+          print(
+              "Alpha std:",
+              metadata["alpha_std"],
+          )
+          print(
+              "Neutrality:",
+              metadata["neutrality_diagnostics"],
+          )
+          print(
+              "Factor diagnostics:",
+              metadata["factor_diagnostics"],
+          )
+          print(
+              "Step seconds:",
+              metadata["step_seconds"],
           )
           print(
               "Runtime seconds:",
               metadata["total_duration_seconds"],
           )
           PY
-
+      
+      - name: Upload live smoke artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: module1-live-${{ github.run_id }}
+          path: |
+            data/latest_alpha_factors.parquet
+            data/pipeline_metadata.json
+          retention-days: 7
+          if-no-files-found: error
+      
       - name: Commit latest factor artifact
+        if: >
+          github.event_name == 'schedule' ||
+          inputs.publish_live == true
         shell: bash
         run: |
           git config user.name "commodity-engine-bot"
