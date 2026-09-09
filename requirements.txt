@@ -9,6 +9,7 @@ yfinance>=0.2.54,<1
 
 requests>=2.31,<3
 beautifulsoup4>=4.12,<5
+lxml>=5,<7
 pypdf>=5,<7
 pyarrow>=18,<30
 openai>=2,<4
