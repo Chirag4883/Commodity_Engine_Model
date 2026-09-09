@@ -450,6 +450,7 @@ def test_metadata_contains_all_pipeline_stages(
         "factor_data",
         "feature_and_graph",
         "neutralization",
+        "persistence",
     }.issubset(
         stages
     )
