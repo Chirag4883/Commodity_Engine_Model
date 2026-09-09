@@ -6,3 +6,11 @@ numpy>=1.26,<3
 pandas>=2.2,<3
 scipy>=1.13,<2
 yfinance>=0.2.54,<1
+
+requests>=2.31,<3
+beautifulsoup4>=4.12,<5
+pypdf>=5,<7
+pyarrow>=18,<30
+openai>=2,<4
+streamlit>=1.40,<2
+matplotlib>=3.9,<4
