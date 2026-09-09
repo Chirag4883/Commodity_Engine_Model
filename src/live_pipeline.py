@@ -1567,7 +1567,7 @@ def run_pipeline(
                 model=(
                     os.getenv(
                         "LLM_MODEL",
-                        cf.llm_model,
+                        cfg.llm_model,
                     )
                 )
             )
