@@ -344,9 +344,9 @@ class PhysicalNodeRouter:
 # ---------------------------------------------------------------------------
 
 
-class OpenAIStructuredClient:
+class GroqStructuredClient:
     """
-    Live implementation of the Level-2 StructuredLLMClient protocol.
+    Groq implementation using the OpenAI-compatible API.
     """
 
     def __init__(
@@ -355,33 +355,33 @@ class OpenAIStructuredClient:
         model: str,
     ) -> None:
 
-        try:
-            from openai import OpenAI
-        except ImportError as exc:
-            raise RuntimeError(
-                "openai package is not installed"
-            ) from exc
+        from openai import OpenAI
 
-        if not os.getenv(
-            "OPENAI_API_KEY"
-        ):
+        api_key = os.getenv(
+            "GROQ_API_KEY"
+        )
+
+        if not api_key:
             raise RuntimeError(
-                "OPENAI_API_KEY is required "
+                "GROQ_API_KEY is required "
                 "for live mode"
             )
 
         self.model = model
-        self.client = OpenAI()
+
+        self.client = OpenAI(
+            api_key=api_key,
+            base_url=(
+                "https://api.groq.com/openai/v1"
+            ),
+        )
 
     def complete_json(
         self,
         *,
         system_prompt: str,
         user_prompt: str,
-        json_schema: Mapping[
-            str,
-            Any,
-        ],
+        json_schema: Mapping[str, Any],
     ) -> str:
 
         response = (
@@ -389,28 +389,28 @@ class OpenAIStructuredClient:
             .responses
             .create(
                 model=self.model,
-                input=[
-                    {
-                        "role": "system",
-                        "content":
-                            system_prompt,
-                    },
-                    {
-                        "role": "user",
-                        "content":
-                            user_prompt,
-                    },
-                ],
+
+                instructions=(
+                    system_prompt
+                ),
+
+                input=(
+                    user_prompt
+                ),
+
                 text={
                     "format": {
                         "type":
                             "json_schema",
+
                         "name":
                             "feature_assessment",
+
                         "schema":
                             dict(
                                 json_schema
                             ),
+
                         "strict":
                             True,
                     }
@@ -425,8 +425,7 @@ class OpenAIStructuredClient:
 
         if not output_text:
             raise RuntimeError(
-                "Structured model returned "
-                "no output_text"
+                "Groq returned no output"
             )
 
         return output_text
